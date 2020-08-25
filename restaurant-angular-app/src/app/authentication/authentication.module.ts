@@ -1,16 +1,18 @@
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
-import { AuthenticateComponent } from './authenticate/authenticate.component';
 import { SharedModule } from '../shared/shared.module';
+import { SignupComponent } from './signup/signup.component';
+import { SigninComponent } from './signin/signin.component';
 
 
 @NgModule({
-    declarations: [AuthenticateComponent],
+    declarations: [SignupComponent, SigninComponent],
     imports: [
         FormsModule,
-        RouterModule.forChild([{ path: '', component: AuthenticateComponent }       /** http://localhost:4200/auth */]),
+        // http://localhost:4200/login
+        RouterModule.forChild([ { path: '', component: SigninComponent } ]),
         SharedModule
     ]
 })

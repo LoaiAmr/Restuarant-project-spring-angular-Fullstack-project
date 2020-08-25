@@ -4,7 +4,6 @@ import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 
 import { RecipeService } from '../recipe.service';
 import { RecipesDataStorage } from '../recipes-data-storage';
-// import { IngredientDataStorage } from '../ingredient-data-storage';
 
 @Component({
   selector: 'app-recipe-edit',

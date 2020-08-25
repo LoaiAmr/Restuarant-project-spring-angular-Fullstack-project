@@ -29,7 +29,8 @@ public class AppExceptionsHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(value = { NullPointerException.class, 
 								RecipeServiceException.class, 
 								IngredientServiceException.class,
-								ShoppingListServiceException.class
+								ShoppingListServiceException.class,
+								AuthenticationException.class
 								})
 	public ResponseEntity<Object> handleNullPointerException(NullPointerException ex, WebRequest request) {
 

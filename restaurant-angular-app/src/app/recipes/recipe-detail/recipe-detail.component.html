@@ -9,7 +9,7 @@
 </div>
 <div class="row">
   <div class="col-xs-12">
-    ({{ recipeSelectToDetail.id }}) <h1>{{ recipeSelectToDetail.name }}</h1>
+ <h1>{{ recipeSelectToDetail.name }}</h1>
   </div>
 </div>
 <div class="row">
@@ -43,7 +43,7 @@
            class="list-group-item"
            *ngFor="let ingredient of recipeSelectToDetail.ingredients">
             {{ ingredient.name }}
-            {{ ingredient.amount }}
+            ({{ ingredient.amount }})
       </li>
   </div>
 </div>

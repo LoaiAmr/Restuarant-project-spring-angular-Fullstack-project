@@ -1,124 +1,132 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, tap } from 'rxjs/operators';
-import { throwError, BehaviorSubject, from } from 'rxjs';
-
-import { User } from './user.model';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
+import { catchError, tap } from 'rxjs/operators';
+
+import { User, Authority } from './user.model';
 
 export interface AuthResponseData {
-    idToken: string;
+    id: number;
+    username: string;
     email: string;
-    refreshToken: string;
-    expiresIn: string;
-    localld: string;
-    registered?: boolean; /** (?) means this is optional  */
+    authorities: Authority[];
+    expirationDate: number;
+    token: string;
 }
-
-
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-    apiKey = 'AIzaSyBljlAk28qWRbdZ7sKNp6keY3v9Xn5lvPs'; /** From Firebase Project setting  */
-    user = new BehaviorSubject<User>(null); 
+
+    user = new BehaviorSubject<User>(null);
     private tokenExpirationTimer: any;
 
     constructor(private http: HttpClient,
-                private router: Router) { }
+        private router: Router) { }
 
-
-    signup(email: string, password: string) {
-
-        /** Firebase rest api for authentication */
-        return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebaseAPIKey,
-            {
-                email: email,
-                password: password,
-                returnSecureToken: true
-
-                /** Handling Errors in service */
-            }).pipe(catchError(this.handleError), tap(responseData => {
-                this.handleAuthentication(
-                    responseData.email,
-                    responseData.localld,
-                    responseData.idToken,
-                    +responseData.expiresIn);
-            }));
+    //==========================Start signup==========================
+    signup(username: string, email: string, password: string, roles: string) {
+        return this.http.post<AuthResponseData>('http://localhost:8080/restaurant/signup', {
+            username: username,
+            email: email,
+            password: password,
+            roles: roles,
+        }).pipe(catchError(this.handleError), tap(responseData => {
+            this.handleAuthentication(
+                responseData.id,
+                responseData.username,
+                responseData.email,
+                responseData.authorities,
+                responseData.expirationDate,
+                responseData.token
+            )
+        })
+        );
     }
 
+    //==========================Start Login==========================
+    login(username: string, password: string) {
 
-    login(email: string, password: string) {
-
-        return this.http.post<AuthResponseData>(
-            'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebaseAPIKey,
+        return this.http.post<AuthResponseData>('http://localhost:8080/restaurant/login',
             {
-                email: email,
-                password: password,
-                returnSecureToken: true
+                username: username,
+                password: password
             }
-
         ).pipe(catchError(this.handleError), tap(responseData => {
             this.handleAuthentication(
+                responseData.id,
+                responseData.username,
                 responseData.email,
-                responseData.localld,
-                responseData.idToken,
-                +responseData.expiresIn);
-        }));
+                responseData.authorities,
+                responseData.expirationDate,
+                responseData.token
+            )
+        }
+        ));
 
     }
 
+    //==========================Start Auto Login==========================
     autoLogin() {
 
         const userData: {
+            id: number;
+            username: string;
             email: string;
-            userId: string;
-            _token: string;
-            _tokenExpirationDate: string /**it must be the same name in attribute in localStorage */
+            authorities: Authority[];
+            expirationDate: number;
+            token: string;
         } = JSON.parse(localStorage.getItem('userData'));
-
 
         if (!userData) {
             return;
         }
 
-        const loadUser = new User(userData.email, userData.userId, userData._token, new Date(userData._tokenExpirationDate));
+        const loadUser = new User(userData.id,
+            userData.username,
+            userData.email,
+            userData.authorities,
+            new Date(userData.expirationDate),
+            userData.token);
 
-        if (loadUser.token) {
+        if (loadUser.userToken) {
             this.user.next(loadUser);
-            const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-            this.autoLogout(expirationDuration);
+            const expirationDuration = new Date(userData.expirationDate).getTime() - new Date().getTime();
+            // this.autoLogout(expirationDuration);
         }
-
     }
 
+
+    //==========================Start Logout==========================
     logout() {
         this.user.next(null);
-        this.router.navigate(['/auth']);
+        this.router.navigate(['/login']);
         localStorage.removeItem('userData');
 
-        if(this.tokenExpirationTimer) {
+        if (this.tokenExpirationTimer) {
             clearTimeout(this.tokenExpirationTimer);
         }
         this.tokenExpirationTimer = null;
     }
 
-    autoLogout(expirationDuration: number) {
-        console.log(expirationDuration);
-        this.tokenExpirationTimer = setTimeout(() => {
-            this.logout();
-        }, expirationDuration);
-    }
 
-    private handleAuthentication(email: string, userId: string, token: string, expiresIn: number) {
+    // autoLogout(expirationDuration: number) {
+    //     this.tokenExpirationTimer = setTimeout(() => {
+    //         this.logout();
+    //     }, expirationDuration);
+    // }
 
-        const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
-        const user = new User(email, userId, token, expirationDate);
+    private handleAuthentication(userId: number, username: string, email: string, authorities: Authority[], expirationDate: number, token: string) {
+
+        const expiresIn = new Date(new Date().getTime() + expirationDate * 1000);
+
+        const user = new User(userId, username, email, authorities, expiresIn, token);
         this.user.next(user);
-        this.autoLogout(expiresIn * 1000);
+
+        // this.autoLogout(expirationDate * 1000);
+
         localStorage.setItem('userData', JSON.stringify(user));
     }
-
 
     private handleError(errorResponse: HttpErrorResponse) {
 
@@ -126,46 +134,25 @@ export class AuthenticationService {
         if (!errorResponse.error || !errorResponse.error.error) {
             return throwError(errorMessage);
         }
-        switch (errorResponse.error.error.message) {
-            case 'EMAIL_EXISTS':
+        switch (errorResponse.error.message) {
+            case 'This Email exists already! Please Login':
                 errorMessage = 'This Email exists already! Please Login';
                 break;
 
-            case 'EMAIL_NOT_FOUND':
+            case 'This user Not Exists! Please Signup':
                 errorMessage = 'This Email Not Found! Please Signup'
                 break;
 
-            case 'INVALID_PASSWORD':
+            case 'Please Enter the valid password!':
                 errorMessage = 'Please Enter the valid password!'
                 break;
 
-            case 'USER_DISABLED':
+            case 'You are disabled by an administrator':
                 errorMessage = 'You are disabled by an administrator'
                 break;
 
         }
         return throwError(errorMessage);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

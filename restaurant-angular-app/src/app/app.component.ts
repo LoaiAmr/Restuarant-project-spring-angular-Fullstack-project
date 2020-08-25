@@ -6,17 +6,16 @@ import { AuthenticationService } from './authentication/authentication.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
 
   title = 'restaurant-angular-tutorial';
 
-  constructor(private authService: AuthenticationService) {}
+  constructor(private authService: AuthenticationService) { }
 
   ngOnInit() {
-
-    /** if the user is logged in it keep it logged until he logout */
+    //if the user is logged in it keep it logged until he logout
     this.authService.autoLogin();
-    
+
   }
 
 }

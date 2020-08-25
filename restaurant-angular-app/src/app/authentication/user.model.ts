@@ -1,21 +1,27 @@
 
+export class Authority {
+    
+    constructor(public authority: string) {}
+}
+
 export class User {
 
-
     constructor(
+        public id: number,
+        public username: string,
         public email: string,
-        public id: string,
-        private _token: string,
-        private _tokenExpirationDate: Date 
+        public authorities: Authority[],
+        private expirationDate: Date,  
+        private token: string
     ) {}
+    
 
-
-    get token() {
+    get userToken() {
         
-        if(!this._tokenExpirationDate || new Date() > this._tokenExpirationDate){
+        if(!this.expirationDate || new Date() > this.expirationDate) {
             return null;
         }
-        return this._token;
+        return this.token;
     }
 
 

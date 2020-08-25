@@ -12,12 +12,18 @@
                 </li>
                 <!-- <li><a href="#" (click)="onSelect('shopping-list')">Shopping List</a></li> -->
                 <li routerLinkActive="active" *ngIf="!isAuthenticated">
-                    <a routerLink="/auth">Authentication</a>
+                    <a routerLink="/login">Authentication</a>
                 </li>
 
                 <li routerLinkActive="active">
                     <a routerLink="/shopping-list">Shopping List</a>
                 </li>
+
+                <!-- <li routerLinkActive="active" *ngIf="isAuthenticated && isAdmin">
+                    <a routerLink="/order" >Order</a>
+                </li> -->
+
+
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
