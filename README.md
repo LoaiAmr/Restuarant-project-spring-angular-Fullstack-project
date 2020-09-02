@@ -12,6 +12,6 @@ Restuarant project using Spring boot as a backend and  Angular as front end Full
   ![Api Documentation For the project](https://github.com/LoaiAmr/Restuarant-project-spring-angular-Fullstack-project/blob/master/images/swagger%20document%20for%20api.PNG)
   
   
-### Screenshots from Frontend of the project
+### Frontend Screenshots
   ![Screenshots from Frontend of the project](https://github.com/LoaiAmr/Restuarant-project-spring-angular-Fullstack-project/blob/master/images/recipe%20angular.PNG)
   ![Screenshots from Frontend of the project](https://github.com/LoaiAmr/Restuarant-project-spring-angular-Fullstack-project/blob/master/images/shopping-list%20angular.PNG)
