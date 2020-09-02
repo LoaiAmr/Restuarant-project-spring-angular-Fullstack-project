@@ -8,7 +8,7 @@ Restuarant project using Spring boot as a backend and  Angular as front end Full
   * swagger (which adding documentation to backend project)
   
   
-### API Documentation For the project
+### API Documentation of the project
   ![Api Documentation For the project](https://github.com/LoaiAmr/Restuarant-project-spring-angular-Fullstack-project/blob/master/images/swagger%20document%20for%20api.PNG)
   
   
